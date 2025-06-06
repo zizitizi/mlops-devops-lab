@@ -84,6 +84,84 @@ Copy
 Edit
 nvcc --version
 ✅ You’re Done!
+
+
+now instal nvidia container toolkit to use it by docker (.ex: --gpus all):
+
+add nvidia package repo :
+
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID) && \
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg && \
+curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
+
+
+sudo apt update
+
+
+sudo apt install -y nvidia-container-toolkit
+
+config docker to use gpu:
+
+sudo nvidia-ctk runtime configure --runtime=docker
+
+output:
+sudo nvidia-ctk runtime configure --runtime=docker
+INFO[0000] Config file does not exist; using empty config 
+INFO[0000] Wrote updated config to /etc/docker/daemon.json 
+INFO[0000] It is recommended that docker daemon be restarted. 
+
+
+
+
+sudo systemctl restart docker
+
+sudo systemctl daemon-reload
+
+test with docker:
+
+docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi
+
+
+output:
+
+docker run --rm --gpus all nvidia/cuda:11.8.0-base-ubuntu22.04 nvidia-smi
+Unable to find image 'nvidia/cuda:11.8.0-base-ubuntu22.04' locally
+11.8.0-base-ubuntu22.04: Pulling from nvidia/cuda
+aece8493d397: Pull complete 
+5e3b7ee77381: Pull complete 
+5bd037f007fd: Pull complete 
+4cda774ad2ec: Pull complete 
+775f22adee62: Pull complete 
+Digest: sha256:f895871972c1c91eb6a896eee68468f40289395a1e58c492e1be7929d0f8703b
+Status: Downloaded newer image for nvidia/cuda:11.8.0-base-ubuntu22.04
+Fri Jun  6 10:50:20 2025       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.230.02             Driver Version: 535.230.02   CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA GeForce MX130           Off | 00000000:01:00.0 Off |                  N/A |
+| N/A   45C    P8              N/A / 200W |      4MiB /  2048MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
++---------------------------------------------------------------------------------------+
+
+
+
+
+
+
+
 From here, you’re ready to:
 
 Use Docker with GPU (--gpus all)
