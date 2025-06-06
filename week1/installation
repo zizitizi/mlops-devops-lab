@@ -183,7 +183,42 @@ model.safetensors: 100%|██████████████████�
 (.venv) root@zizi-pc:~/mini-gpt-lab# 
 
 
+#another sample mini-gpt model in this folder and venv:
 
+mini-gpt-lab/
+├── README.md              ← توضیحات پروژه
+├── requirements.txt       ← کتابخانه‌های مورد نیاز
+└── test_gpt.py            ← کد تست GPT2 کوچک روی GPU
+
+
+nano requirements.txt
+
+torch
+transformers
+accelerate
+
+pip install -r requirements.txt
+
+
+nano test_gpt.py
+
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+tokenizer = AutoTokenizer.from_pretrained("sshleifer/tiny-gpt2")
+model = AutoModelForCausalLM.from_pretrained("sshleifer/tiny-gpt2").cuda()
+
+inputs = tokenizer("Hello, my name is", return_tensors="pt").to("cuda")
+outputs = model.generate(**inputs, max_new_tokens=20)
+print(tokenizer.decode(outputs[0]))
+
+
+python test_gpt.py
+
+output:
+
+ python test_gpt.py
+Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+Hello, my name is stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs
 
 
 
