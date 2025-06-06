@@ -1,0 +1,69 @@
+mini-gpt-lab/
+├── requirements.txt
+├── test_gpt.py
+└── (اینجا یه فایل جدید می‌سازیم به اسم Dockerfile)
+
+cd mini-gpt-lab
+
+nano Dockerfile
+
+# پایه: PyTorch با پشتیبانی از CUDA
+FROM pytorch/pytorch:2.2.0-cuda11.8-cudnn8-runtime
+
+# نصب کتابخانه‌های مورد نیاز
+RUN pip install --upgrade pip
+COPY requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
+
+# کپی فایل پروژه
+COPY . /app
+WORKDIR /app
+
+# اجرای تست
+CMD ["python", "test_gpt.py"]
+
+
+
+docker build -t mini-gpt-docker .
+
+ اجرای container با GPU
+توجه: مطمئن باش که nvidia-container-toolkit رو نصب داری و docker run --gpus all جواب می‌ده.
+
+اجرای کانتینر با GPU:  
+
+
+docker run --rm --gpus all mini-gpt-docker
+
+--rm: This option automatically removes the container when it exits, helping to keep your environment clean.
+--gpus all: This flag allows the container to use all available GPUs on the host machine. It's essential for running models that require GPU acceleration.
+
+
+
+
+output sholud be same as previouse simple out put in installation phase like this:
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
