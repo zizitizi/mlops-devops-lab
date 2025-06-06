@@ -74,6 +74,49 @@ Hello, my name is stairs stairs stairs stairs stairs stairs stairs stairs stairs
 you see the result is same as run this code with out container becouse i use torch version same as my pc torch version.
 
 
+#simple monitor and log
+
+1- while running container in other terminal tab hit: 
+watch -n 1 nvidia-smi
+
+2- 
+docker run --rm --gpus all --entrypoint nvidia-smi mini-gpt-docker:latest 
+output:
+
+Fri Jun  6 11:29:34 2025       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.230.02             Driver Version: 535.230.02   CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA GeForce MX130           Off | 00000000:01:00.0 Off |                  N/A |
+| N/A   43C    P8              N/A / 200W |      4MiB /  2048MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
++---------------------------------------------------------------------------------------+
+
+
+3- for simple log :
+docker run --rm --gpus all mini-gpt-docker:latest > gpt-output.log
+
+ tail -f gpt-output.log 
+ tail -f gpt-output.log output:
+Hello, my name is stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs
+
+
+
+
+
+
+
 
 
 
