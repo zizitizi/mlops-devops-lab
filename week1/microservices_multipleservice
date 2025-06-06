@@ -1,0 +1,115 @@
+now we convert this simple service to microservice and up it with docker compose:
+
+
+ما می‌خوایم پروژه رو تبدیل کنیم به یک سیستم چند-سرویسی واقعی با این اجزا:
+
+
+| سرویس                 | توضیح                                                         |
+| --------------------- | ------------------------------------------------------------- |
+| `model-api`           | سرویسی که مدل GPT رو با FastAPI ارائه می‌کنه                  |
+| `frontend`            | رابط کاربری (مثلاً Streamlit یا HTML ساده) برای تعامل با مدل  |
+| `logger`              | یک سرویس ساده برای ذخیره لاگ‌ها                               |
+| `monitor`             | ابزار مانیتورینگ (اختیاری – مثلاً Prometheus + Grafana بعداً) |
+| `docker-compose.yaml` | برای orkestration تمام سرویس‌ها                               |
+
+
+
+
+
+گام 1: ساخت سرویس model-api با FastAPI
+ما الان می‌خوایم یک API بسازیم که:
+
+مدل GPT کوچیک (مثلاً sshleifer/tiny-gpt2) رو بارگذاری کنه
+
+از طریق HTTP درخواست بگیره (مثلاً متن کاربر) و جواب بده
+
+📁 ساختار پروژه پیشنهادی
+bash
+Copy
+Edit
+mini-gpt-lab/
+├── model-api/
+│   ├── app.py              # کد FastAPI
+│   ├── requirements.txt    # لیست پکیج‌ها
+│   └── Dockerfile          # Dockerfile برای سرویس API
+├── docker-compose.yaml     # تعریف تمام سرویس‌ها
+🧠 محتوای فایل‌ها
+1. model-api/app.py
+python
+Copy
+Edit
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
+
+app = FastAPI()
+
+tokenizer = AutoTokenizer.from_pretrained("sshleifer/tiny-gpt2")
+model = AutoModelForCausalLM.from_pretrained("sshleifer/tiny-gpt2").cuda()
+
+class Prompt(BaseModel):
+    text: str
+
+@app.post("/generate")
+def generate(prompt: Prompt):
+    inputs = tokenizer.encode(prompt.text, return_tensors="pt").cuda()
+    outputs = model.generate(inputs, max_length=50)
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return {"response": response}
+2. model-api/requirements.txt
+txt
+Copy
+Edit
+fastapi
+uvicorn
+transformers
+torch
+3. model-api/Dockerfile
+Dockerfile
+Copy
+Edit
+FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04
+
+RUN apt update && apt install -y python3 python3-pip
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY app.py .
+
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+4. docker-compose.yaml
+yaml
+Copy
+Edit
+version: "3.9"
+
+services:
+  model-api:
+    build: ./model-api
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia
+🚀 اجرای پروژه
+bash
+Copy
+Edit
+docker compose up --build
+✅ تست API
+در مرورگر یا با curl:
+
+bash
+Copy
+Edit
+curl -X POST http://localhost:8000/generate -H "Content-Type: application/json" -d '{"text": "Hello, my name is"}'
+
+
+
+
