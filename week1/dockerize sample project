@@ -5,23 +5,44 @@ mini-gpt-lab/
 
 cd mini-gpt-lab
 
+nano test_gpt.py
+
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+tokenizer = AutoTokenizer.from_pretrained("sshleifer/tiny-gpt2")
+model = AutoModelForCausalLM.from_pretrained("sshleifer/tiny-gpt2").cuda()
+
+inputs = tokenizer("Hello, my name is", return_tensors="pt").to("cuda")
+outputs = model.generate(**inputs, max_new_tokens=20)
+
+print(tokenizer.decode(outputs[0]))
+
+
+
 nano Dockerfile
 
-# پایه: PyTorch با پشتیبانی از CUDA
-FROM pytorch/pytorch:2.2.0-cuda11.8-cudnn8-runtime
+# ✅ پایه: تصویر رسمی با CUDA و پایتورچ
+FROM pytorch/pytorch:2.3.0-cuda11.8-cudnn8-runtime
 
-# نصب کتابخانه‌های مورد نیاز
-RUN pip install --upgrade pip
-COPY requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
+# ✅ آپدیت pip و نصب transformers و مدل‌های GPT کوچک
+RUN pip install --upgrade pip \
+ && pip install torch==2.3.0 \
+    transformers==4.41.2 \
+    accelerate==0.30.1 \
+    safetensors==0.4.3 \
+    --no-cache-dir
 
-# کپی فایل پروژه
+# ✅ کپی کد پروژه داخل کانتینر
 COPY . /app
 WORKDIR /app
 
-# اجرای تست
+# ✅ اجرای تست
 CMD ["python", "test_gpt.py"]
 
+
+ Dockerfile رو طوری بسازیم که از همون نسخه‌ی PyTorch م استفاده کرد
+تا به ارور امنیتی نخورم 
+لوکال خود
 
 
 docker build -t mini-gpt-docker .
@@ -42,7 +63,15 @@ docker run --rm --gpus all mini-gpt-docker
 
 output sholud be same as previouse simple out put in installation phase like this:
 
+docker run --rm --gpus all mini-gpt-docker
+/opt/conda/lib/python3.10/site-packages/huggingface_hub/file_download.py:943: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+Hello, my name is stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs
+(.venv) root@zizi-pc:~/mini-gpt-lab# 
 
+
+you see the result is same as run this code with out container becouse i use torch version same as my pc torch version.
 
 
 
