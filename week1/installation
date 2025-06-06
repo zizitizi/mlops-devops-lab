@@ -1,0 +1,200 @@
+this week i install ubuntu 22.04
+
+couse driver support. after approximatly sep. in change and upgrade to ubunto 24.04 to nvidia support for driver added in this   ubuntu24.
+
+now i found if i want to write a os in rufus i sholud worry about bios mode. if i want write ubuntu alongside windows to detect windows with ubuntu it must be same bios mode . uefi or both of them should be legacy bios mbr . then write to rufus and install it in dual boot mode.
+
+
+after all i update the system and install followinf package
+note that: python3 built in installed in ubuntu 22.04
+
+
+
+
+now install nvidia driver to use it in docker and chatgpt mini model:
+
+
+#install Nvidia driver and cuda:
+
+Step 1: Verify Your GPU
+Run this to check the GPU is visible:
+
+bash
+Copy
+Edit
+lspci | grep -i nvidia
+If nothing shows, double-check if your GPU is enabled in BIOS (for laptops) or PCIe slot (for desktops).
+
+🧼 Step 2: Clean Previous Installations (optional but recommended)
+bash
+Copy
+Edit
+sudo apt purge "*nvidia*"
+sudo apt autoremove
+📦 Step 3: Add NVIDIA Drivers PPA (official & safe)
+bash
+Copy
+Edit
+sudo add-apt-repository ppa:graphics-drivers/ppa
+sudo apt update
+⚙️ Step 4: Install Recommended NVIDIA Driver
+Run:
+
+bash
+Copy
+Edit
+ubuntu-drivers devices
+It will suggest something like:
+
+nvidia-driver-535 (recommended)
+
+Now install it:
+
+bash
+Copy
+Edit
+sudo apt install nvidia-driver-535
+Then reboot:
+
+bash
+Copy
+Edit
+sudo reboot
+🔎 Step 5: Check Driver is Working
+After reboot, run:
+
+bash
+Copy
+Edit
+nvidia-smi
+You should see your GPU and driver version listed.
+
+🧠 Step 6: (Optional) Install CUDA Toolkit (for dev, training, building)
+If you only need inference (with PyTorch/Transformers) — they bundle CUDA, and you don't have to install the toolkit.
+But if you want it:
+
+bash
+Copy
+Edit
+sudo apt install nvidia-cuda-toolkit
+Then test:
+
+bash
+Copy
+Edit
+nvcc --version
+✅ You’re Done!
+From here, you’re ready to:
+
+Use Docker with GPU (--gpus all)
+
+Use PyTorch with GPU (torch.cuda.is_available())
+
+
+
+
+Recommended Driver for my current old version laptop gpu - GeForce MX130 (Ubuntu 22.04):
+→ nvidia-driver-535
+It's stable, well-supported, and compatible with MX130 and CUDA 12.x.
+
+bash
+Copy
+Edit
+sudo apt install nvidia-driver-535
+⚠️ Avoid:
+driver-570 / 570-server / 560 / 565 / 550: These are newer or server-oriented versions that might cause instability or lack MX130 support.
+
+driver-390: Too old, limited CUDA support.
+
+xserver-xorg-video-nouveau: Open-source fallback (slow, no CUDA).
+
+
+note: cuda toolkit in neccessary when we want use full control on gpu in docker or write direct programming with cuda or use gpu correctly or train/inference AI model to run on gpu
+
+#install and test python 3 package:
+
+https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-programming-environment-on-an-ubuntu-22-04-server
+
+
+sudo apt install -y python3-pip
+
+sudo apt install -y build-essential libssl-dev libffi-dev python3-dev
+
+sudo apt install -y build-essential libssl-dev libffi-dev python3-dev
+sudo apt install -y python3-venv
+mkdir environments
+cd environments
+python3 -m venv my_env
+ls my_env
+source my_env/bin/activate
+nano hello.py
+
+print("Hello, World!")
+python hello.py
+
+
+deactivate
+
+
+
+#make mini-gpt sample project
+
+mkdir mini-gpt-lab && cd mini-gpt-lab
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+
+pip install torch transformers accelerate
+python -c "import torch; print(torch.cuda.is_available())"
+
+when see true in output it means gpu card is ready for inference
+
+
+#to test eliminatry sample project to test gpt architecture with HuggingFace:
+
+note: HuggingFace is A complete ecosystem: It’s a platform for NLP/ML development, collaboration, and deployment.
+
+nano testminigptarchug.py
+
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+tokenizer = AutoTokenizer.from_pretrained("sshleifer/tiny-gpt2")
+model = AutoModelForCausalLM.from_pretrained("sshleifer/tiny-gpt2").cuda()
+
+inputs = tokenizer("Hello, my name is", return_tensors="pt").to("cuda")
+outputs = model.generate(**inputs, max_new_tokens=20)
+print(tokenizer.decode(outputs[0]))
+
+
+python testminigptarchug.py
+
+
+output:
+python testminigptarchug.py 
+tokenizer_config.json: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 26.0/26.0 [00:00<00:00, 135kB/s]
+config.json: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 662/662 [00:00<00:00, 1.53MB/s]
+vocab.json: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 899k/899k [00:00<00:00, 2.17MB/s]
+merges.txt: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 456k/456k [00:00<00:00, 4.10MB/s]
+special_tokens_map.json: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90.0/90.0 [00:00<00:00, 247kB/s]
+pytorch_model.bin: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2.51M/2.51M [00:00<00:00, 3.35MB/s]
+Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+Hello, my name is stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs stairs
+model.safetensors: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2.51M/2.51M [00:01<00:00, 2.27MB/s]
+(.venv) root@zizi-pc:~/mini-gpt-lab# 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
