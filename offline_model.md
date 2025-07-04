@@ -49,13 +49,89 @@ There are two popular and simple options for this:
         docker exec -it ollama ollama pull llama3
 
 
+or using docker compose
+
+nano docker-compose.yml
+
+
+    version: '3.8'
+    
+    services:
+      ollama:
+        image: ollama/ollama:latest
+        container_name: ollama
+        ports:
+          - "11434:11434"
+        volumes:
+          - ollama_data:/root/.ollama
+        restart: always
+    
+    volumes:
+      ollama_data:
+
+
+docker compose up -d
+
+
+docker ps
+
+
+docker exec -it ollama ollama pull llama3
+
+
+to save your image as your library image
+
+docker exec -it ollama ollama pull llama3
+
+
+
+docker commit ollama ollama
+
+
+
+
+
 test it with :
 
-    curl http://localhost:11434/api/generate -d '{
-      "model": "llama3",
-      "prompt": "hi.how are you?"
-    }'
+        curl http://localhost:11434/api/generate -d '{
+          "model": "llama3",
+          "prompt": "hi.how are you?"
+        }'
+    
 
 
+curl http://localhost:11434
+
+
+or in browser 
+
+http://localhost:11434
+
+now its ready
+
+Building a simple chat client with jq
+
+apt install jq
+
+
+
+nano chat.sh
+
+
+    
+    #!/bin/bash
+    echo "Type your prompt (Ctrl+C to exit)"
+    while true; do
+      read -p "> " prompt
+      curl -s -X POST http://localhost:11434/api/generate -d "{\"model\": \"llama3\", \"prompt\": \"$prompt\"}" | jq -r '.response'
+    done
+    
+
+
+chmod +x chat.sh
+
+
+
+./chat.sh
 
 
