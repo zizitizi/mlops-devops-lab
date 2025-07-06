@@ -230,7 +230,7 @@ https://github.com/open-webui/open-webui/blob/main/docker-compose.yaml
     
 
 
-  just enjoy it!
+  just enjoy it! after all dont worry about internet disconnection and chat limit!!! :) 
   
 
 
