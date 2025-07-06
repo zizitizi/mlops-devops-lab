@@ -1,5 +1,5 @@
 
-## steo1: run an ai model in your local
+## step 1: run an ai model in your local
 
 after install nvidea toolkit for container runtime do this.
 
