@@ -1,5 +1,5 @@
 
-### step 1
+## steo1: run an ai model in your local
 
 after install nvidea toolkit for container runtime do this.
 
@@ -115,6 +115,9 @@ http://localhost:11434
 
 now its ready
 
+
+## step 2: web ui to chat with ai model
+
 ### Building a simple chat client with jq
 
 apt install jq
@@ -179,6 +182,60 @@ http://localhost:3000/
 
 
 in next step will be to how tune the ai chat for t-shoot and devops.
+
+enjoy it
+
+
+### Building a profesional customize chat web ui client with open-webui
+
+i run that in my docker to keep my system clean then you can do it like me. after mkdir a folder then copy and pase and run it:
+
+https://github.com/open-webui/open-webui/blob/main/docker-compose.yaml
+
+
+    services:
+      ollama:
+        volumes:
+          - ollama:/root/.ollama
+        container_name: ollama
+        pull_policy: always
+        tty: true
+        restart: unless-stopped
+        image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+    
+      open-webui:
+        build:
+          context: .
+          args:
+            OLLAMA_BASE_URL: '/ollama'
+          dockerfile: Dockerfile
+        image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+        container_name: open-webui
+        volumes:
+          - open-webui:/app/backend/data
+        depends_on:
+          - ollama
+        ports:
+          - ${OPEN_WEBUI_PORT-3000}:8080
+        environment:
+          - 'OLLAMA_BASE_URL=http://ollama:11434'
+          - 'WEBUI_SECRET_KEY='
+        extra_hosts:
+          - host.docker.internal:host-gateway
+        restart: unless-stopped
+    
+    volumes:
+      ollama: {}
+      open-webui: {}
+    
+
+
+  just enjoy it!
+  
+
+
+
+
 
 
 
